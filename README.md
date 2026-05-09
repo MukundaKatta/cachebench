@@ -80,6 +80,18 @@ for prefix_id, stats in tracker.by_prefix().items():
 - Not a billing dashboard. Exports metrics; aggregation/UI is your job.
 - Doesn't modify prompts (no auto-injecting cache breakpoints — see other tools for that).
 
+## Relationship to bedrock-kit
+
+If you only use AWS Bedrock and you want a full client wrapper (adaptive throttle, structured-output JSON repair, cost ledger), use [bedrock-kit](https://github.com/MukundaKatta/bedrock-kit) — it tracks `cache_read_tokens` per call as part of its cost ledger.
+
+Use `cachebench` when you want:
+
+- Cross-provider observability (Anthropic + OpenAI direct API, plus Bedrock).
+- Per-prefix attribution and hit-rate regression alerts.
+- Miss-aware retry around Anthropic's documented eventual-consistency window.
+
+The two compose cleanly: wrap a `bedrock_kit.BedrockClient.invoke` call with `CacheTracker.wrap` and you get bedrock-kit's client features plus cachebench's regression alerting.
+
 ## Pricing data
 
 `DEFAULT_PRICING` ships with current Anthropic/OpenAI/Bedrock rates. Pricing changes; pass `pricing=` to override:
